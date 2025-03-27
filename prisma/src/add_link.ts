@@ -17,16 +17,14 @@ async function main(prop: urlprop) {
 			original_url: prop.original_url,
 			short_url: prop.short_url
 		}
+	}).then(async () => {
+		await prisma.$disconnect()
+		console.log("Query ran succesfully")
+	}).catch(async (e) => {
+		await prisma.$disconnect()
+		console.log(e)
 	})
 }
 
 main(prop)
-	.then(async () => {
-		await prisma.$disconnect()
-		console.log("Query ran succesfully")
-	})
-	.catch(async (e) => {
-		await prisma.$disconnect()
-		console.log(e)
-	}
-	)
+export default main

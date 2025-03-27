@@ -9,33 +9,27 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-const client_1 = require("@prisma/client'");
+const client_1 = require("@prisma/client");
 const prisma = new client_1.PrismaClient();
-const urlprop, { original_url: string };
-short_url: string;
 const prop = {
     original_url: "Random.xyx",
     short_url: "xefsfaga"
 };
 function main(prop) {
     return __awaiter(this, void 0, void 0, function* () {
-        yield prisma.link.create({
+        yield prisma.linkTable.create({
             data: {
-                original_url: prop.original,
+                original_url: prop.original_url,
                 short_url: prop.short_url
             }
-        });
+        }).then(() => __awaiter(this, void 0, void 0, function* () {
+            yield prisma.$disconnect();
+            console.log("Query ran succesfully");
+        })).catch((e) => __awaiter(this, void 0, void 0, function* () {
+            yield prisma.$disconnect();
+            console.log(e);
+        }));
     });
 }
-main(prop)
-    .then(() => __awaiter(void 0, void 0, void 0, function* () {
-    yield prisma.$disconnect();
-    console.log("Query ran succesfully");
-}));
-try { }
-catch (async) { }
-(e) => {
-    yield prisma.$disconnect();
-    console.log(e);
-    process.exit(1);
-};
+main(prop);
+exports.default = main;
