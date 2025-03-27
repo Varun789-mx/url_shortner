@@ -1,0 +1,35 @@
+import {PrismaClient} from "@prisma/client'
+
+const prisma = new PrismaClient()
+
+const urlprop { 
+	original_url:string;
+	short_url:string;
+}
+const prop:urlprop = {
+	original_url:"Random.xyx"
+	short_url:"xefsfaga"
+}
+
+async function main(prop:urlprop) { 
+	await prisma.link.create({
+		data:{ 
+			original_url:prop.original,
+			short_url:prop.short_url
+		}
+	})
+}
+
+main(prop)
+	.then(async()=> { 
+		await prisma.$disconnect() 
+		console.log("Query ran succesfully")
+	}
+	.catch(async(e)=> { 
+		await prisma.$disconnect() 
+		console.log(e)
+		process.exit(1)
+
+	}
+
+
