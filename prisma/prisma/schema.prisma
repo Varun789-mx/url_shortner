@@ -14,7 +14,9 @@ datasource db {
 }
 
 
-model user{ 
+model linkTable{ 
 id Int @id @default(autoincrement())
-original_url string 
-short_url string 
+original_url String 
+short_url String
+createdAt DateTime @default(now()) @db.Timestamptz(6)
+} 
