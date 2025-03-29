@@ -10,24 +10,26 @@
  *
  * Learn more at https://developers.cloudflare.com/workers/
  */
- import insertlink from "../../prisma/src/add_link"
- interface urlprop {
-      original_url: string;
-      short_url: string;
-  }
-  async function addlink(prop:urlprop) {
-      try {
-      const client = await insertlink(prop);
-      }catch(e) {
-          console.log(e)
-      }
- }
-
-interface shortenurl { 
-	url:string;
+import insertlink from "../../prisma/src/add_link"
+interface urlprop {
+	original_url: string;
+	short_url: string;
+}
+async function addlink(prop: urlprop) {
+	try {
+		const client = await insertlink(prop);
+		return client;
+	} catch (e) {
+		console.log(e)
+	}
+	return null
 }
 
-function generateshort() {
+interface shortenurl {
+	url: string;
+}
+
+async function generateshort() {
 	let short = ''
 	const str = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz'
 	for (let i = 0; i < 8; i++) {
@@ -36,44 +38,46 @@ function generateshort() {
 	return short;
 }
 export default {
-	async fetch(request, env, ctx): Promise<Response> {
-		const url = new URL(request.url);
-		if(request.method === 'POST' && url.pathname === '/shorten') { 
-			try { 
-				const original_url:shortenurl = new await request.json()
-				if(!original_url) { 
-				 return new Response(JSON.stringyfy({Error:"Url is not provided"},{
-					status:400,
-					headers:{"Content-Type":"application/json"}
-					},
-				 ))
-				}
-				const short_url = generateshort();
+	async fetch(request: Request, env: Env): Promise<Response> {
+		const url = new URL(request.url)
+		if (request.method === 'POST' && url.pathname === '/shorten') {
+			try {
+				const original_url: shortenurl = await request.json();
+				const short_url = await generateshort();
 				const new_url = await addlink({
-					original_url:original_url.url,
-					short_url:short_url
+					original_url: original_url.url,
+					short_url: short_url
 				});
-				if(!new_url) { 
-					return new Response(JSON.stringify({Error:"Unable to add url to db"},{
-						status:500,
-						headers:{"Content-Type":"applicaton/json"},
-					} )
-							   )
+				if (!new_url) {
+					return new Response(JSON.stringify({ error: "Error in creating db" }), {
+						status: 400,
+						headers: { "Content-Type": "application/json" }
+					});
 				}
-				return new Response(JSON.stringify({shorten_url:short_url},{headers:{"Content-Type":"application/json"},}))
-				
-			}catch(e) { 
-				return new Response(JSON.stringify({Error:e},{
-						status:500,
-						headers:{"Content-Type":"application/json"}
-				
-						})
-						   )
-			}
+				return new Response(JSON.stringify({ short_url: short_url }), {
+					status: 500,
+					headers: {
+						"Content-Type": "application/json"
+					}
+				})
 
-		
+
+			} catch (e) {
+				return new Response(JSON.stringify({ Error: e }), {
+					status: 400,
+					headers: { 'Content-Type': 'application/json' },
+
+				})
+			}
+		}
+		else {
+			return new Response(JSON.stringify({ Error: "Request type is not post" }), {
+				status: 400,
+				headers: { 'Content-Type': "application/json" }
+			})
 		}
 	}
-}satisfies ExportedHandler<Env>				
-			  	
+} satisfies ExportedHandler<Env>
+
+
 
